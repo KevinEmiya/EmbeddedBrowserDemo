@@ -115,7 +115,7 @@ signals:
     void loadError(QString errorStr);
     void loadResourceError(QString resource, QString errorStr);
     void webMsgReceived(QString msg);
-    void keyEvent(Qt::Key key);
+    void inspectorRequested();
 
 private:
     bool loadingCefErrorPage();

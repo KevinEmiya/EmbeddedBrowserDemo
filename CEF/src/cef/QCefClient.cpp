@@ -97,16 +97,10 @@ bool QCefClient::OnKeyEvent(CefRefPtr<CefBrowser> browser,
         switch (keyCode)
         {
         case CEF_F5:
-            emit keyEvent(Qt::Key_F5);
-            return true;
-        case CEF_F9:
-            emit keyEvent(Qt::Key_F9);
-            return true;
-        case CEF_F11:
-            emit keyEvent(Qt::Key_F11);
+            reload();
             return true;
         case CEF_F12:
-            emit keyEvent(Qt::Key_F12);
+            emit inspectorRequested();
             return true;
         default:
             break;

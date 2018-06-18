@@ -1,6 +1,7 @@
 #include "MainDlg.h"
 #include "ui_MainDlg.h"
 
+#include <QKeyEvent>
 #include <QMessageBox>
 #include <QSplitter>
 #include <QStackedLayout>
@@ -44,20 +45,35 @@ void MainDlg::initWebview(CefRefPtr<QCefApp> cefApp)
 
     connect(m_webview, SIGNAL(cefEmbedded()), this, SLOT(onCefEmbedded()));
     connect(m_webview, SIGNAL(webMsgReceived(QString)), this, SLOT(onRecvFromWeb(QString)));
-    connect(m_webview, SIGNAL(keyEvent(Qt::Key)), this, SLOT(onKeyEvent(Qt::Key)));
 
     m_inspector = new QCefInspector(cefApp->addBrowser(), ui->webviewFrame);
     m_inspector->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     splitter->addWidget(m_inspector);
+    m_inspector->hide();
+    m_inspectorVisible = false;
 
     connect(ui->btnGo, &QPushButton::clicked, this, [this]() {
         m_webview->load(QUrl(ui->editAddress->text()));
     });
 
     connect(m_webview, &QCefView::loadFinished, this, [this](bool ok, bool isMainFrame) {
-        if(ok && isMainFrame && m_inspector->isVisible())
+        if (ok && isMainFrame && m_inspector->isVisible())
         {
             m_inspector->inspect();
+        }
+    });
+
+    connect(m_webview, &QCefView::inspectorRequested, this, [this]() {
+        if (m_inspectorVisible)
+        {
+            m_inspector->hide();
+            m_inspectorVisible = false;
+        }
+        else
+        {
+            m_inspector->inspect();
+            m_inspector->show();
+            m_inspectorVisible = true;
         }
     });
 }
@@ -65,37 +81,6 @@ void MainDlg::initWebview(CefRefPtr<QCefApp> cefApp)
 void MainDlg::onCefEmbedded()
 {
     show();
-    m_inspectorVisible = false;
-    m_inspector->hide();
-}
-
-void MainDlg::onKeyEvent(Qt::Key key)
-{
-    switch (key)
-    {
-        case Qt::Key_F5:
-        {
-            m_webview->reload();
-        }
-        break;
-        case Qt::Key_F12:
-        {
-            if (m_inspectorVisible)
-            {
-                m_inspector->hide();
-                m_inspectorVisible = false;
-            }
-            else
-            {
-                m_inspector->inspect();
-                m_inspector->show();
-                m_inspectorVisible = true;
-            }
-        }
-        break;
-        default:
-            break;
-    }
 }
 
 void MainDlg::onRecvFromWeb(QString msg)

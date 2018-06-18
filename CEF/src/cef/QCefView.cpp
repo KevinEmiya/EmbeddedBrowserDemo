@@ -1,6 +1,7 @@
 ﻿#include "QCefView.h"
+#include <QMenu>
 
-QCefView::QCefView(CefRefPtr<QCefClient> cefClient, QWidget *parent) : QWidget(parent)
+QCefView::QCefView(CefRefPtr<QCefClient> cefClient, QWidget* parent) : QWidget(parent)
 {
     m_cefEmbedded = false;
     m_cefClient = cefClient;
@@ -14,7 +15,7 @@ QCefView::QCefView(CefRefPtr<QCefClient> cefClient, QWidget *parent) : QWidget(p
     connect(cefClientPtr, SIGNAL(loadFinished(bool, bool)), this, SIGNAL(loadFinished(bool, bool)));
     connect(cefClientPtr, SIGNAL(loadError(QString)), this, SIGNAL(loadError(QString)));
     connect(cefClientPtr, SIGNAL(webMsgReceived(QString)), this, SIGNAL(webMsgReceived(QString)));
-    connect(cefClientPtr, SIGNAL(keyEvent(Qt::Key)), this, SIGNAL(keyEvent(Qt::Key)));
+    connect(cefClientPtr, SIGNAL(inspectorRequested()), this, SIGNAL(inspectorRequested()));
 }
 
 QCefView::~QCefView()
@@ -34,19 +35,19 @@ void QCefView::reload()
 void QCefView::onCefTimer()
 {
     CefDoMessageLoopWork();
-    if(m_cefEmbedded == false)
+    if (m_cefEmbedded == false)
     {
         CefWindowHandle browserHandle = m_cefClient->browserWinId();
-        if(browserHandle != (CefWindowHandle)-1)
+        if (browserHandle != (CefWindowHandle) -1)
         {
-                QWindow* subW = QWindow::fromWinId((WId)browserHandle);
-                QWidget* container = QWidget::createWindowContainer(subW, this);
-                QStackedLayout* cefLayout = new QStackedLayout(this);
-                setLayout(cefLayout);
-                container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-                cefLayout->addWidget(container);
-                m_cefEmbedded = true;
-                emit cefEmbedded();
+            QWindow* subW = QWindow::fromWinId((WId) browserHandle);
+            QWidget* container = QWidget::createWindowContainer(subW, this);
+            QStackedLayout* cefLayout = new QStackedLayout(this);
+            setLayout(cefLayout);
+            container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            cefLayout->addWidget(container);
+            m_cefEmbedded = true;
+            emit cefEmbedded();
         }
     }
 }
@@ -60,9 +61,4 @@ void QCefView::runJavaScript(QString script)
 void QCefView::sendToWeb(QString msg)
 {
     runJavaScript(QString("ckRecvMessage('%1');").arg(msg));
-}
-
-void QCefView::checkPage()
-{
-    runJavaScript(QString("checkPage();"));
 }

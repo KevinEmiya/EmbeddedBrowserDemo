@@ -23,7 +23,7 @@ signals:
     void loadFinished(bool ok, bool isMainFrame);
     void loadError(QString errorStr);
     void webMsgReceived(QString msg);
-    void keyEvent(Qt::Key key);
+    void inspectorRequested();
 
 protected slots:
     virtual void onCefTimer();
@@ -32,7 +32,6 @@ public:
     void load(QUrl url);
     void runJavaScript(QString script);
     void sendToWeb(QString msg);
-    void checkPage();
     void reload();
 
 protected:

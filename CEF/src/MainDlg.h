@@ -24,7 +24,6 @@ private:
 private slots:
     void onCefEmbedded();
     void onRecvFromWeb(QString msg);
-    void onKeyEvent(Qt::Key key);
 
 private:
     Ui::MainDlg *ui;
