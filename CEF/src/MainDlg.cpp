@@ -37,7 +37,7 @@ void MainDlg::initWebview(CefRefPtr<QCefApp> cefApp)
     webLayout->setSpacing(0);
     webLayout->setStackingMode(QStackedLayout::StackAll);
 
-    //TODO: for ssl tutorial, add ca certs into the main client
+    cefApp->enableHttps();
     m_webview = new QCefView(cefApp->addBrowser(), upperFrame);
     m_webview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     webLayout->addWidget(m_webview);

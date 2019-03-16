@@ -13,6 +13,9 @@ QCefApp::QCefApp()
 
 QCefApp::~QCefApp()
 {
+    if (m_sslContext != NULL) {
+        delete m_sslContext;
+    }
 }
 
 void QCefApp::OnContextInitialized()
@@ -21,7 +24,7 @@ void QCefApp::OnContextInitialized()
     m_contextReady = true;
 }
 
-CefRefPtr<QCefClient> QCefApp::addBrowser(QList<QSslCertificate> caCerts)
+CefRefPtr<QCefClient> QCefApp::addBrowser()
 {
     if (m_contextReady)
     {
@@ -36,7 +39,18 @@ CefRefPtr<QCefClient> QCefApp::addBrowser(QList<QSslCertificate> caCerts)
 
         // SimpleHandler implements browser-level callbacks.
         CefRefPtr<QCefClient> client(new QCefClient());
-        client->setCaCerts(caCerts);
+        if (m_httpsEnabled)
+        {
+            if (m_sslContext == NULL)
+            {
+                m_sslContext = new QCefSslContext();
+            }
+            if (m_sslContext->isValid())
+            {
+                QList<QSslCertificate> caCerts = m_sslContext->caCertificates();
+                client->setCaCerts(caCerts);
+            }
+        }
         // Specify CEF browser settings here.
         CefBrowserSettings browserSettings;
         std::string url = "data:text/html,chromewebdata";
